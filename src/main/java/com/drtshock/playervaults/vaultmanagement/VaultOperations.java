@@ -93,14 +93,7 @@ public class VaultOperations {
      * @return max size as integer. If no max size is set then it will default to the configured default.
      */
     public static int getMaxVaultSize(String name) {
-        try {
-            UUID uuid = UUID.fromString(name);
-            return getMaxVaultSize(Bukkit.getOfflinePlayer(uuid));
-        } catch (Exception e) {
-            // Not a UUID
-        }
-
-        return PlayerVaults.getInstance().getDefaultVaultSize();
+        return VaultPagination.STORAGE_SIZE;
     }
 
     /**
@@ -110,15 +103,7 @@ public class VaultOperations {
      * @return max size as integer. If no max size is set then it will default to the configured default.
      */
     public static int getMaxVaultSize(OfflinePlayer player) {
-        if (player == null || !player.isOnline()) {
-            return 6 * 9;
-        }
-        for (int i = 6; i != 0; i--) {
-            if (player.getPlayer().hasPermission(Permission.size(i))) {
-                return i * 9;
-            }
-        }
-        return PlayerVaults.getInstance().getDefaultVaultSize();
+        return VaultPagination.STORAGE_SIZE;
     }
 
     /**
@@ -134,6 +119,10 @@ public class VaultOperations {
 
     public static boolean openOwnVaultSign(Player player, String arg) {
         return openOwnVaultE(player, arg, true, false);
+    }
+
+    public static boolean openOwnVaultNavigation(Player player, int number) {
+        return openOwnVaultE(player, String.valueOf(number), true, false);
     }
 
     private static boolean openOwnVaultE(Player player, String arg, boolean free, boolean send) {

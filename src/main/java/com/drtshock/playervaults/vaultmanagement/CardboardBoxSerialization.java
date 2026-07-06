@@ -31,7 +31,7 @@ public class CardboardBoxSerialization {
 
     public static ItemStack[] fromStorage(String data, String target) {
         if (data == null || data.isEmpty()) {
-            ItemStack[] i = new ItemStack[6 * 9];
+            ItemStack[] i = new ItemStack[VaultPagination.STORAGE_SIZE];
             for (int x = 0; x < i.length; x++) {
                 i[x] = new ItemStack(Material.AIR);
             }

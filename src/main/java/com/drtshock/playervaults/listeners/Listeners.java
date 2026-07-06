@@ -24,6 +24,8 @@ import com.drtshock.playervaults.events.BlacklistedItemEvent;
 import com.drtshock.playervaults.util.Permission;
 import com.drtshock.playervaults.vaultmanagement.VaultHolder;
 import com.drtshock.playervaults.vaultmanagement.VaultManager;
+import com.drtshock.playervaults.vaultmanagement.VaultOperations;
+import com.drtshock.playervaults.vaultmanagement.VaultPagination;
 import com.drtshock.playervaults.vaultmanagement.VaultViewInfo;
 import org.bukkit.Bukkit;
 import org.bukkit.enchantments.Enchantment;
@@ -135,9 +137,18 @@ public class Listeners implements Listener {
 
         Player player = (Player) event.getWhoClicked();
 
+        Inventory topInventory = event.getView().getTopInventory();
+        VaultViewInfo info = PlayerVaults.getInstance().getInVault().get(player.getUniqueId().toString());
+        if (topInventory.getHolder() instanceof VaultHolder && VaultPagination.isNavigationSlot(event.getRawSlot(), topInventory)) {
+            event.setCancelled(true);
+            if (info != null) {
+                navigateVault(event, player, topInventory, info);
+            }
+            return;
+        }
+
         Inventory clickedInventory = event.getClickedInventory();
         if (clickedInventory != null) {
-            VaultViewInfo info = PlayerVaults.getInstance().getInVault().get(player.getUniqueId().toString());
             if (info != null) {
                 int num = info.getNumber();
                 String inventoryTitle = event.getView().getTitle();
@@ -176,6 +187,16 @@ public class Listeners implements Listener {
 
         Player player = (Player) event.getWhoClicked();
 
+        Inventory topInventory = event.getView().getTopInventory();
+        if (topInventory.getHolder() instanceof VaultHolder) {
+            for (int rawSlot : event.getRawSlots()) {
+                if (VaultPagination.isNavigationSlot(rawSlot, topInventory)) {
+                    event.setCancelled(true);
+                    return;
+                }
+            }
+        }
+
         Inventory clickedInventory = event.getInventory();
         if (clickedInventory != null) {
             VaultViewInfo info = PlayerVaults.getInstance().getInVault().get(player.getUniqueId().toString());
@@ -195,6 +216,46 @@ public class Listeners implements Listener {
                 }
             }
         }
+    }
+
+    private void navigateVault(InventoryClickEvent event, Player player, Inventory inventory, VaultViewInfo info) {
+        int target = this.getNavigationTarget(event.getRawSlot(), player, info);
+        if (target < 1) {
+            return;
+        }
+
+        this.saveVault(player, inventory);
+        if (info.getVaultName().equals(player.getUniqueId().toString())) {
+            if (VaultOperations.openOwnVaultNavigation(player, target)) {
+                PlayerVaults.getInstance().getInVault().put(player.getUniqueId().toString(), new VaultViewInfo(player.getUniqueId().toString(), target));
+            }
+        } else {
+            VaultOperations.openOtherVault(player, info.getVaultName(), String.valueOf(target), false);
+        }
+    }
+
+    private int getNavigationTarget(int rawSlot, Player player, VaultViewInfo info) {
+        if (rawSlot != VaultPagination.PREVIOUS_SLOT && rawSlot != VaultPagination.NEXT_SLOT) {
+            return -1;
+        }
+
+        int current = info.getNumber();
+        if (info.getVaultName().equals(player.getUniqueId().toString())) {
+            int count = VaultOperations.countVaults(player);
+            if (rawSlot == VaultPagination.PREVIOUS_SLOT && current > 1) {
+                return current - 1;
+            }
+            if (rawSlot == VaultPagination.NEXT_SLOT && current < count) {
+                return current + 1;
+            }
+            return -1;
+        }
+
+        Set<Integer> vaultNumbers = this.vaultManager.getVaultNumbers(info.getVaultName());
+        if (rawSlot == VaultPagination.PREVIOUS_SLOT) {
+            return vaultNumbers.stream().filter(number -> number < current).max(Integer::compareTo).orElse(-1);
+        }
+        return vaultNumbers.stream().filter(number -> number > current).min(Integer::compareTo).orElse(-1);
     }
 
     private boolean isBlocked(Player player, ItemStack item, VaultViewInfo info) {

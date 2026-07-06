@@ -18,6 +18,7 @@
 package com.drtshock.playervaults.config.file;
 
 import com.drtshock.playervaults.config.annotation.Comment;
+import com.drtshock.playervaults.config.annotation.ConfigName;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.util.ArrayList;
@@ -101,6 +102,74 @@ public class Config {
         }
     }
 
+    public class Pagination {
+        public class ButtonItem {
+            private String type;
+            @ConfigName("display-name")
+            private String displayName;
+            private List<String> lore;
+            @ConfigName("item-model")
+            private String itemModel;
+
+            private ButtonItem(String type, String displayName, List<String> lore, String itemModel) {
+                this.type = type;
+                this.displayName = displayName;
+                this.lore = lore;
+                this.itemModel = itemModel;
+            }
+
+            public String getType() {
+                return this.type;
+            }
+
+            public String getDisplayName() {
+                return this.displayName;
+            }
+
+            public List<String> getLore() {
+                if (this.lore == null) {
+                    this.lore = new ArrayList<>();
+                }
+                return Collections.unmodifiableList(this.lore);
+            }
+
+            public String getItemModel() {
+                return this.itemModel;
+            }
+        }
+
+        public class Button {
+            private ButtonItem button;
+
+            private Button(String type, String displayName, List<String> lore, String itemModel) {
+                this.button = new ButtonItem(type, displayName, lore, itemModel);
+            }
+
+            public ButtonItem getButton() {
+                return this.button;
+            }
+        }
+
+        @ConfigName("previous-page")
+        private Button previousPage = new Button("ARROW", "<yellow>Previous vault", new ArrayList<>(), "");
+        @ConfigName("next-page")
+        private Button nextPage = new Button("ARROW", "<yellow>Next vault", new ArrayList<>(), "");
+        @ConfigName("barrier-items")
+        private Button barrierItems = new Button("BARRIER", " ", new ArrayList<>(), "");
+
+        public ButtonItem getPreviousPage() {
+            return this.previousPage.getButton();
+        }
+
+        public ButtonItem getNextPage() {
+            return this.nextPage.getButton();
+        }
+
+        public ButtonItem getBarrierItems() {
+            return this.barrierItems.getButton();
+        }
+    }
+
     public class Storage {
         public class FlatFile {
             @Comment("""
@@ -140,9 +209,9 @@ public class Config {
     private boolean debug = false;
 
     @Comment("""
-            Can be 1 through 6.
-            Default: 6""")
-    private int defaultVaultRows = 6;
+            Vault content rows are fixed at 5.
+            Default: 5""")
+    private int defaultVaultRows = 5;
 
     @Comment("""
             Signs
@@ -171,6 +240,12 @@ public class Config {
 
     @Comment("Sets the highest vault amount this plugin will test perms for")
     private int maxVaultAmountPermTest = 99;
+
+    @Comment("""
+            Pagination buttons
+             Configure the previous page, next page, and barrier items shown in the navigation row.
+             The current page button is not shown.""")
+    private Pagination pagination = new Pagination();
 
     @Comment("Storage option. Currently only flatfile, but soon more! :)")
     private Storage storage = new Storage();
@@ -223,6 +298,10 @@ public class Config {
 
     public int getMaxVaultAmountPermTest() {
         return this.maxVaultAmountPermTest;
+    }
+
+    public Pagination getPagination() {
+        return this.pagination;
     }
 
     public Storage getStorage() {

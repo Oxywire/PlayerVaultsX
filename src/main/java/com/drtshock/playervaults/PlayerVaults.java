@@ -36,6 +36,7 @@ import com.drtshock.playervaults.tasks.Cleanup;
 import com.drtshock.playervaults.util.ComponentDispatcher;
 import com.drtshock.playervaults.util.Permission;
 import com.drtshock.playervaults.vaultmanagement.EconomyOperations;
+import com.drtshock.playervaults.vaultmanagement.VaultPagination;
 import com.drtshock.playervaults.vaultmanagement.VaultManager;
 import com.drtshock.playervaults.vaultmanagement.VaultViewInfo;
 import com.google.gson.Gson;
@@ -637,12 +638,11 @@ public class PlayerVaults extends JavaPlugin {
     }
 
     public int getDefaultVaultRows() {
-        int def = this.config.getDefaultVaultRows();
-        return (def >= 1 && def <= 6) ? def : 6;
+        return VaultPagination.STORAGE_ROWS;
     }
 
     public int getDefaultVaultSize() {
-        return this.getDefaultVaultRows() * 9;
+        return VaultPagination.STORAGE_SIZE;
     }
 
     public boolean isSign(Material mat) {
