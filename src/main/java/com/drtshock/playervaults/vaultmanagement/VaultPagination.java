@@ -19,16 +19,13 @@ public final class VaultPagination {
     public static final int STORAGE_SIZE = STORAGE_ROWS * 9;
     public static final int PAGINATED_SIZE = 6 * 9;
     public static final int NAVIGATION_START = STORAGE_SIZE;
-    public static final int PREVIOUS_SLOT = NAVIGATION_START;
-    public static final int PAGE_SLOT = NAVIGATION_START + 4;
-    public static final int NEXT_SLOT = NAVIGATION_START + 8;
     private static boolean warnedItemModelUnsupported;
 
     private VaultPagination() {
     }
 
-    public static int displaySize(boolean pagination) {
-        return pagination ? PAGINATED_SIZE : STORAGE_SIZE;
+    public static int displaySize() {
+        return PAGINATED_SIZE;
     }
 
     public static boolean isNavigationSlot(int rawSlot, Inventory inventory) {
@@ -62,12 +59,8 @@ public final class VaultPagination {
         }
     }
 
-    public static void addNavigation(Inventory inventory, int currentVault, int vaultCount) {
-        addNavigation(inventory, currentVault, vaultCount, currentVault > 1, currentVault < vaultCount);
-    }
-
-    public static void addNavigation(Inventory inventory, int currentVault, int vaultCount, boolean hasPrevious, boolean hasNext) {
-        if (inventory.getSize() <= STORAGE_SIZE || vaultCount <= 1) {
+    public static void addNavigation(Inventory inventory) {
+        if (inventory.getSize() <= STORAGE_SIZE) {
             return;
         }
 
@@ -77,12 +70,32 @@ public final class VaultPagination {
             inventory.setItem(slot, filler);
         }
 
-        if (hasPrevious) {
-            inventory.setItem(PREVIOUS_SLOT, item(pagination.getPreviousPage()));
+        setItems(inventory, pagination.getNextPageSlots(), pagination.getNextPage());
+        setItems(inventory, pagination.getPreviousPageSlots(), pagination.getPreviousPage());
+    }
+
+    public static boolean isPreviousSlot(int slot) {
+        return configuredSlots(PlayerVaults.getInstance().getConf().getPagination().getPreviousPageSlots()).contains(slot);
+    }
+
+    public static boolean isNextSlot(int slot) {
+        return configuredSlots(PlayerVaults.getInstance().getConf().getPagination().getNextPageSlots()).contains(slot);
+    }
+
+    private static void setItems(Inventory inventory, List<Integer> slots, Config.Pagination.ButtonItem config) {
+        ItemStack button = item(config);
+        for (int slot : configuredSlots(slots)) {
+            if (slot < inventory.getSize()) {
+                inventory.setItem(slot, button);
+            }
         }
-        if (hasNext) {
-            inventory.setItem(NEXT_SLOT, item(pagination.getNextPage()));
-        }
+    }
+
+    private static List<Integer> configuredSlots(List<Integer> slots) {
+        return slots.stream()
+                .filter(slot -> slot != null && slot >= NAVIGATION_START && slot < PAGINATED_SIZE)
+                .distinct()
+                .collect(Collectors.toList());
     }
 
     private static ItemStack item(Config.Pagination.ButtonItem config) {
@@ -97,6 +110,8 @@ public final class VaultPagination {
         if (meta != null) {
             if (config.getDisplayName() != null && !config.getDisplayName().isEmpty()) {
                 meta.setDisplayName(legacy(config.getDisplayName()));
+            } else {
+                hideTooltip(meta);
             }
             List<String> lore = config.getLore();
             if (!lore.isEmpty()) {
@@ -106,6 +121,14 @@ public final class VaultPagination {
             item.setItemMeta(meta);
         }
         return item;
+    }
+
+    private static void hideTooltip(ItemMeta meta) {
+        try {
+            meta.getClass().getMethod("setHideTooltip", boolean.class).invoke(meta, true);
+        } catch (ReflectiveOperationException ignored) {
+            // Hide-tooltip item metadata is unavailable on older server versions.
+        }
     }
 
     private static String legacy(String miniMessage) {

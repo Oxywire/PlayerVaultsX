@@ -195,12 +195,12 @@ public class Translation {
     }
 
     private static class Placeholders {
-        private TL title = TL.of("<dark_red>[<normal>PlayerVaults<dark_red>]: ");
+        private TL title = TL.of("<gray>");
     }
 
     private static class Translations {
         // Be sure to add anything new to the cleanupMiniMessup list.
-        private TL openVault = TL.of("<normal>Opening vault <info><vault></info>");
+        private TL openVault = TL.of("<white> <gold>Opening vault <yellow><vault>");
         private TL openOtherVault = TL.of("<normal>Opening vault <info><vault></info> of <info><player></info>");
         private TL invalidArgs = TL.of("<error>Invalid args!");
         private TL deleteVault = TL.of("<normal>Deleted vault <info><vault></info>");
@@ -218,14 +218,14 @@ public class Translation {
         private TL notASign = TL.of("<error>You must click a sign!");
         private TL setSign = TL.of("<normal>You have successfully set a PlayerVault access sign!");
         private TL existingVaults = TL.of("<normal><player> has vaults: <info><vault></info>");
-        private TL vaultTitle = TL.of("<dark_red>Vault #<vault>");
+        private TL vaultTitle = TL.of("<white>#<vault>");
         private TL openWithSign = TL.of("<normal>Opening vault <info><vault></info> of <info><player></info>");
         private TL noOwnerFound = TL.of("<error>Cannot find vault owner: <info><player></info>");
         private TL convertPluginNotFound = TL.of("<error>No converter found for that plugin.");
         private TL convertComplete = TL.of("<normal>Converted <info><count></info> players to PlayerVaults.");
         private TL convertBackground = TL.of("<normal>Conversion has been forked to the background. See console for updates.");
         private TL locked = TL.of("<error>Vaults are currently locked while conversion occurs. Please try again in a moment!");
-        private TL help = TL.of("/pv <number>");
+        private TL help = TL.of("<white> <gold>Use <yellow>/pv <number>");
         private TL blockedItem = TL.of("<gold><item></gold> <error>is blocked from vaults.");
         private TL blockedItemWithModelData = TL.of("<error>This item is blocked from vaults.");
         private TL blockedItemWithoutModelData = TL.of("<error>This item is blocked from vaults.");

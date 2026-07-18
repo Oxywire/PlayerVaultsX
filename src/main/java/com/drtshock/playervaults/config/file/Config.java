@@ -38,7 +38,7 @@ public class Config {
                  then either all items with custom model data will be blocked, or all items without custom model data will be blocked.""")
         private List<String> list = new ArrayList<>() {
             {
-                this.add("PUMPKIN");
+                this.add("BEDROCK");
             }
         };
 
@@ -138,10 +138,10 @@ public class Config {
             }
         }
 
-        public class Button {
+        public class ButtonContainer {
             private ButtonItem button;
 
-            private Button(String type, String displayName, List<String> lore, String itemModel) {
+            private ButtonContainer(String type, String displayName, List<String> lore, String itemModel) {
                 this.button = new ButtonItem(type, displayName, lore, itemModel);
             }
 
@@ -150,12 +150,38 @@ public class Config {
             }
         }
 
+        public class Button extends ButtonContainer {
+            @Comment("Slots in the navigation row (45 through 53) occupied by this button.")
+            private List<Integer> slots;
+
+            private Button(List<Integer> slots, String type, String displayName, List<String> lore, String itemModel) {
+                super(type, displayName, lore, itemModel);
+                this.slots = slots;
+            }
+
+            public List<Integer> getSlots() {
+                if (this.slots == null) {
+                    this.slots = new ArrayList<>();
+                }
+                return Collections.unmodifiableList(this.slots);
+            }
+
+        }
+
         @ConfigName("previous-page")
-        private Button previousPage = new Button("ARROW", "<yellow>Previous vault", new ArrayList<>(), "");
+        private Button previousPage = new Button(List.of(45, 46), "PAPER", "<yellow>Previous vault", new ArrayList<>(), "oxywire:menus/blank_button");
         @ConfigName("next-page")
-        private Button nextPage = new Button("ARROW", "<yellow>Next vault", new ArrayList<>(), "");
+        private Button nextPage = new Button(List.of(52, 53), "PAPER", "<yellow>Next vault", new ArrayList<>(), "oxywire:menus/blank_button");
         @ConfigName("barrier-items")
-        private Button barrierItems = new Button("BARRIER", " ", new ArrayList<>(), "");
+        private ButtonContainer barrierItems = new ButtonContainer("PAPER", "", new ArrayList<>(), "oxywire:menus/blank_button");
+
+        public List<Integer> getPreviousPageSlots() {
+            return this.previousPage.getSlots();
+        }
+
+        public List<Integer> getNextPageSlots() {
+            return this.nextPage.getSlots();
+        }
 
         public ButtonItem getPreviousPage() {
             return this.previousPage.getButton();
@@ -262,8 +288,7 @@ public class Config {
         l.info("blocked items = " + (this.itemBlocking.list = c.getStringList("blocked-items")));
         if (this.itemBlocking.list == null) {
             this.itemBlocking.list = new ArrayList<>();
-            this.itemBlocking.list.add("PUMPKIN");
-            this.itemBlocking.list.add("DIAMOND_BLOCK");
+            this.itemBlocking.list.add("BEDROCK");
             l.info(" set defaults: " + this.itemBlocking.list);
         }
         l.info("cleanup purge enabled = " + (this.purge.enabled = c.getBoolean("cleanup.enable", false)));

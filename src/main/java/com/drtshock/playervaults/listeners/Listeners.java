@@ -235,24 +235,26 @@ public class Listeners implements Listener {
     }
 
     private int getNavigationTarget(int rawSlot, Player player, VaultViewInfo info) {
-        if (rawSlot != VaultPagination.PREVIOUS_SLOT && rawSlot != VaultPagination.NEXT_SLOT) {
+        boolean previous = VaultPagination.isPreviousSlot(rawSlot);
+        boolean next = VaultPagination.isNextSlot(rawSlot);
+        if (!previous && !next) {
             return -1;
         }
 
         int current = info.getNumber();
         if (info.getVaultName().equals(player.getUniqueId().toString())) {
             int count = VaultOperations.countVaults(player);
-            if (rawSlot == VaultPagination.PREVIOUS_SLOT && current > 1) {
+            if (previous && current > 1) {
                 return current - 1;
             }
-            if (rawSlot == VaultPagination.NEXT_SLOT && current < count) {
+            if (next && current < count) {
                 return current + 1;
             }
             return -1;
         }
 
         Set<Integer> vaultNumbers = this.vaultManager.getVaultNumbers(info.getVaultName());
-        if (rawSlot == VaultPagination.PREVIOUS_SLOT) {
+        if (previous) {
             return vaultNumbers.stream().filter(number -> number < current).max(Integer::compareTo).orElse(-1);
         }
         return vaultNumbers.stream().filter(number -> number > current).min(Integer::compareTo).orElse(-1);

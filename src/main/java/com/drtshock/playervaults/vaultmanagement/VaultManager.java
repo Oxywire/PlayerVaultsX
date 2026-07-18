@@ -31,7 +31,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -82,8 +81,7 @@ public class VaultManager {
      * @param number The vault number.
      */
     public Inventory loadOwnVault(Player player, int number, int size) {
-        int vaultCount = VaultOperations.countVaults(player);
-        size = VaultPagination.displaySize(vaultCount > 1);
+        size = VaultPagination.displaySize();
 
         PlayerVaults.debug("Loading self vault for " + player.getName() + " (" + player.getUniqueId() + ')');
 
@@ -100,11 +98,11 @@ public class VaultManager {
             PlayerVaults.debug("No vault matching number");
             Inventory inv = Bukkit.createInventory(vaultHolder, size, title);
             vaultHolder.setInventory(inv);
-            VaultPagination.addNavigation(inv, number, vaultCount);
+            VaultPagination.addNavigation(inv);
             return inv;
         } else {
             Inventory inv = getInventory(vaultHolder, player.getUniqueId().toString(), playerFile, size, number, title);
-            VaultPagination.addNavigation(inv, number, vaultCount);
+            VaultPagination.addNavigation(inv);
             return inv;
         }
     }
@@ -138,17 +136,14 @@ public class VaultManager {
         } else {
             YamlConfiguration playerFile = getPlayerVaultFile(holder, true);
             Set<Integer> vaultNumbers = getVaultNumbers(holder);
-            int vaultCount = Math.max(vaultNumbers.isEmpty() ? number : Collections.max(vaultNumbers), number);
-            boolean hasPrevious = vaultNumbers.stream().anyMatch(vaultNumber -> vaultNumber < number);
-            boolean hasNext = vaultNumbers.stream().anyMatch(vaultNumber -> vaultNumber > number);
-            size = VaultPagination.displaySize(vaultNumbers.size() > 1);
+            size = VaultPagination.displaySize();
             Inventory i = getInventory(vaultHolder, holder, playerFile, size, number, title);
             if (i == null) {
                 return null;
             } else {
                 inv = i;
             }
-            VaultPagination.addNavigation(inv, number, vaultCount, hasPrevious, hasNext);
+            VaultPagination.addNavigation(inv);
             PlayerVaults.getInstance().getOpenInventories().put(info.toString(), inv);
         }
         return inv;
