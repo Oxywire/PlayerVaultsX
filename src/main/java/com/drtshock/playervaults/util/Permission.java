@@ -15,11 +15,16 @@ public class Permission {
     public static final String SIGNS_USE = PREFIX + "signs.use";
     public static final String SIGNS_SET = PREFIX + "signs.set";
 
-    private static final String AMOUNT_PREFIX = PREFIX + "amount.";
+    private static final String AMOUNT_BASE_PREFIX = PREFIX + "amount.base.";
+    private static final String AMOUNT_PREMIUM_PREFIX = PREFIX + "amount.premium.";
     private static final String SIZE_PREFIX = PREFIX + "size.";
 
-    public static String amount(int amount) {
-        return AMOUNT_PREFIX + amount;
+    public static String amountBase(int amount) {
+        return AMOUNT_BASE_PREFIX + amount;
+    }
+
+    public static String amountPremium(int amount) {
+        return AMOUNT_PREMIUM_PREFIX + amount;
     }
 
     public static String size(int size) {

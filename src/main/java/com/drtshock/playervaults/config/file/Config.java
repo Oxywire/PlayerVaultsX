@@ -264,7 +264,7 @@ public class Config {
                         This will not lag your server or touch the backups folder.""")
     private PurgePlanet purge = new PurgePlanet();
 
-    @Comment("Sets the highest vault amount this plugin will test perms for")
+    @Comment("Sets the highest vault amount this plugin will test for each of the base and premium permission tracks")
     private int maxVaultAmountPermTest = 99;
 
     @Comment("""

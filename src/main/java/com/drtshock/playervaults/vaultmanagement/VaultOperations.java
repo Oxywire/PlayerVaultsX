@@ -78,12 +78,31 @@ public class VaultOperations {
      * @return Whether or not they have permission.
      */
     public static boolean checkPerms(CommandSender sender, int number) {
-        for (int x = number; x <= PlayerVaults.getInstance().getMaxVaultAmountPermTest(); x++) {
-            if (sender.hasPermission(Permission.amount(x))) {
-                return true;
+        return number <= getVaultAmount(sender);
+    }
+
+    /**
+     * Gets the number of vaults granted to a sender by their base and premium amount permissions.
+     * The highest value granted by each permission track is added to the other track.
+     *
+     * @param sender The person whose permissions should be checked.
+     * @return The combined number of vaults granted by both permission tracks.
+     */
+    public static int getVaultAmount(CommandSender sender) {
+        int baseAmount = 0;
+        int premiumAmount = 0;
+        int maxAmount = PlayerVaults.getInstance().getMaxVaultAmountPermTest();
+
+        for (int amount = 1; amount <= maxAmount; amount++) {
+            if (sender.hasPermission(Permission.amountBase(amount))) {
+                baseAmount = amount;
+            }
+            if (sender.hasPermission(Permission.amountPremium(amount))) {
+                premiumAmount = amount;
             }
         }
-        return false;
+
+        return baseAmount + premiumAmount;
     }
 
     /**
@@ -368,12 +387,7 @@ public class VaultOperations {
         if (count != null && count.time().isAfter(Instant.now().plus(secondsToLive, ChronoUnit.SECONDS))) {
             return count.count;
         }
-        int vaultCount = 0;
-        for (int x = 1; x <= PlayerVaults.getInstance().getMaxVaultAmountPermTest(); x++) {
-            if (player.hasPermission(Permission.amount(x))) {
-                vaultCount = x;
-            }
-        }
+        int vaultCount = getVaultAmount(player);
         PlayerCount newCount = new PlayerCount(vaultCount, Instant.now());
         countCache.put(uuid, newCount);
         PlayerVaults.getInstance().getServer().getScheduler().runTaskLater(PlayerVaults.getInstance(), () -> {
